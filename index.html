@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0f">
 <title>Flash ⚡ Ton</title>
+<script>
+window.onerror = function(msg, url, line, col) {
+  try {
+    var box = document.createElement('div');
+    box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;padding:10px;font-size:11px;font-family:monospace;white-space:pre-wrap;max-height:40vh;overflow:auto';
+    box.textContent = 'ERR: ' + msg + '\nLine ' + line + ':' + col;
+    document.body.appendChild(box);
+  } catch (e) {}
+  return false;
+};
+</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,7 +24,7 @@
 :root{--bg:#080a11;--panel:#11141d;--line:#292e3d;--muted:#9299aa;--white:#f7f8fc;--mint:#abf7d5}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:104px;background-image:radial-gradient(ellipse at 88% 2%,rgba(130,112,255,.2),transparent 34%),radial-gradient(ellipse at 0% 38%,rgba(77,205,164,.09),transparent 42%),linear-gradient(160deg,#0a0c14,#080a11 62%)}
-button{font:inherit;color:inherit;border:0;cursor:pointer}
+button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
 .app{max-width:480px;margin:auto;min-height:100vh;position:relative;padding:0 20px 28px}
 .top{height:76px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font:800 19px Manrope,sans-serif;letter-spacing:-.6px}
@@ -64,12 +75,12 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .wide{width:100%;height:48px;border-radius:14px;font-weight:700}
 .progress{height:5px;background:#292d35;border-radius:9px;margin-top:12px;overflow:hidden}
 .progress i{height:100%;width:0%;display:block;background:linear-gradient(90deg,#74c5a1,#b6f1d6);transition:width .3s}
-.nav{position:fixed;z-index:5;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);padding:10px 13px calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;background:#101217ed;backdrop-filter:blur(20px);border-top:1px solid #282b33}
+.nav{position:fixed;z-index:50;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);padding:10px 13px calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;background:#101217ed;backdrop-filter:blur(20px);border-top:1px solid #282b33}
 .nav button{flex:1;background:none;color:#707683;font-size:9px;font-weight:600;padding:5px 0}
 .nav .ni{display:block;font-size:19px;margin-bottom:4px}
 .nav button.active{color:var(--mint)}
 .notice{border:1px solid #37362e;background:#1d1b17;color:#d6c69c;border-radius:14px;padding:12px;font-size:10px;line-height:1.6;margin-top:17px}
-.toast{position:fixed;z-index:15;bottom:92px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#edf5f0;color:#173126;border-radius:13px;padding:12px 16px;font-size:12px;transition:.2s;max-width:90vw}
+.toast{position:fixed;z-index:100;bottom:92px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#edf5f0;color:#173126;border-radius:13px;padding:12px 16px;font-size:12px;transition:.2s;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .status-badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:700;margin-right:4px}
 .status-ok{background:#1a3a2a;color:#7de0b0}
@@ -81,7 +92,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <main class="app">
 <header class="top">
 <div class="brand"><span>Flash</span><span style="color:#f5cc70;margin-left:-5px">⚡</span><span style="color:#aeb5c8;font-weight:600;margin-left:-5px">Ton</span></div>
-<button class="profile" onclick="go('profile')">✦</button>
+<button class="profile" id="profileBtn" type="button">✦</button>
 </header>
 
 <section id="home" class="page active">
@@ -101,15 +112,16 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 <div class="earn-card">
 <div class="earn-icon">✧</div>
 <div class="earn-copy"><strong>Daily momentum</strong><span id="dailyProgress">0 of 5 ads today</span><div class="progress"><i id="dailyProgressBar"></i></div></div>
-<button class="earn-cta" onclick="go('tasks')">Explore</button>
+<button class="earn-cta" data-go="tasks" type="button">Explore</button>
 </div>
-<div class="section-head"><h2>Earn more</h2><button class="link" onclick="go('tasks')">See all →</button></div>
+<div class="section-head"><h2>Earn more</h2><button class="link" data-go="tasks" type="button">See all →</button></div>
 <div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>+0.00010 TON</span></div><span class="reward">+0.0001</span></div>
 <div class="task"><div class="earn-icon">↗</div><div class="task-info"><strong>Invite friend</strong><span>+0.001 TON</span></div><span class="reward">+0.001</span></div>
 <div class="notice">
 Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <span id="adsStatus" class="status-badge status-bad">Ads ?</span>
 <span id="dbStatus" class="status-badge status-bad">DB ?</span>
+<span id="apiStatus" class="status-badge status-bad">API ?</span>
 </div>
 </section>
 
@@ -117,7 +129,7 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <h1 class="title">Tasks</h1>
 <p class="sub">Small actions, steady rewards.</p>
 <div class="stat"><label>Tasks completed</label><b id="tasksCompleted">0 / 3</b></div>
-<div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>One per 24h</span></div><button class="earn-cta" onclick="dailyCheckin()">Claim</button></div>
+<div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>One per 24h</span></div><button class="earn-cta" id="checkinBtn" type="button">Claim</button></div>
 </section>
 
 <section id="withdraw" class="page">
@@ -128,7 +140,7 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <div class="withdraw-box">
 <h3>TON wallet</h3>
 <input class="input" id="payoutWallet" placeholder="UQ... or EQ...">
-<button class="wide secondary" onclick="requestWithdraw()">↗ Request withdrawal</button>
+<button class="wide secondary" id="withdrawBtn" type="button">↗ Request withdrawal</button>
 </div>
 </section>
 
@@ -151,17 +163,17 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <input class="input" id="newTaskTitle" placeholder="Title">
 <input class="input" id="newTaskReward" type="number" step="0.00001" placeholder="Reward TON">
 <input class="input" id="newTaskUrl" type="url" placeholder="URL (optional)">
-<button class="wide secondary" onclick="createTask()">＋ Publish</button>
+<button class="wide secondary" id="createTaskBtn" type="button">＋ Publish</button>
 </div>
 <div id="adminWithdrawals" class="admin-empty">Loading...</div>
 </section>
 
 <nav class="nav" id="mainNav">
-<button class="active" data-page="home"><span class="ni">⌂</span>Home</button>
-<button data-page="tasks"><span class="ni">▤</span>Tasks</button>
-<button data-page="withdraw"><span class="ni">↗</span>Withdraw</button>
-<button data-page="profile"><span class="ni">◎</span>Profile</button>
-<button id="adminNav" data-page="admin" style="display:none"><span class="ni">⚙</span>Admin</button>
+<button class="active" data-go="home" type="button"><span class="ni">⌂</span>Home</button>
+<button data-go="tasks" type="button"><span class="ni">▤</span>Tasks</button>
+<button data-go="withdraw" type="button"><span class="ni">↗</span>Withdraw</button>
+<button data-go="profile" type="button"><span class="ni">◎</span>Profile</button>
+<button id="adminNav" data-go="admin" type="button" style="display:none"><span class="ni">⚙</span>Admin</button>
 </nav>
 </main>
 
@@ -176,7 +188,7 @@ const ADMIN_TELEGRAM_ID = '8280934931';
 const DAILY_AD_LIMIT = 5;
 const API_FUNCTION = 'flash-api';
 
-let supabase = null;
+let supabaseClient = null;
 let adController = null;
 let currentUserId = null;
 let currentUser = null;
@@ -184,7 +196,6 @@ let currentUser = null;
 const tg = window.Telegram?.WebApp;
 const tgUser = tg?.initDataUnsafe?.user;
 
-// ================= SAFE HELPERS =================
 function $(id) { return document.getElementById(id); }
 
 function setStatus(id, ok, text) {
@@ -204,46 +215,36 @@ function showToast(text) {
   window.toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ================= NAVIGATION =================
+// ================= NAV =================
 function go(page) {
-  try {
-    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page));
-    document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (page === 'admin' && typeof loadAdmin === 'function') loadAdmin();
-  } catch (e) {
-    console.warn('Nav error:', e);
-  }
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.go === page));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (page === 'admin' && typeof loadAdmin === 'function') loadAdmin();
 }
-window.go = go;
 
-// Nav buttons ke liye event listener
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.nav button');
-  if (btn && btn.dataset.page) {
-    go(btn.dataset.page);
+document.addEventListener('click', function(e) {
+  const navBtn = e.target.closest('[data-go]');
+  if (navBtn) {
+    const page = navBtn.dataset.go;
+    if (page) go(page);
   }
 });
 
 // ================= TELEGRAM =================
 function initTelegram() {
   try {
-    if (!tg) {
-      setStatus('tgStatus', false, 'TG ✗');
-      console.warn('Telegram WebApp not loaded');
-      return false;
-    }
+    if (!tg) { setStatus('tgStatus', false, 'TG ✗'); return false; }
     tg.ready();
     tg.expand();
     currentUserId = tgUser?.id ? String(tgUser.id) : null;
     setStatus('tgStatus', true, 'TG ✓');
-    if (currentUserId === ADMIN_TELEGRAM_ID) {
-      const adminNav = $('adminNav');
-      if (adminNav) adminNav.style.display = 'block';
+    if (currentUserId === ADMIN_TELEGRAM_ID && $('adminNav')) {
+      $('adminNav').style.display = 'block';
     }
     return true;
   } catch (e) {
-    console.warn('Telegram init error:', e);
+    console.warn('TG error:', e);
     setStatus('tgStatus', false, 'TG ✗');
     return false;
   }
@@ -256,11 +257,11 @@ function initSupabase() {
       setStatus('dbStatus', false, 'DB ✗ key');
       return false;
     }
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     setStatus('dbStatus', true, 'DB ✓');
     return true;
   } catch (e) {
-    console.warn('Supabase init error:', e);
+    console.warn('Supabase error:', e);
     setStatus('dbStatus', false, 'DB ✗');
     return false;
   }
@@ -269,19 +270,16 @@ function initSupabase() {
 // ================= ADSGRAM =================
 function initAdsgram() {
   try {
-    if (!window.Adsgram) {
-      setStatus('adsStatus', false, 'Ads ✗ SDK');
-      return false;
-    }
+    if (!window.Adsgram) { setStatus('adsStatus', false, 'Ads ✗ SDK'); return false; }
     if (!ADSGRAM_BLOCK_ID || ADSGRAM_BLOCK_ID.includes('YOUR')) {
-      setStatus('adsStatus', false, 'Ads ✗ blockId');
+      setStatus('adsStatus', false, 'Ads ✗ id');
       return false;
     }
     adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
     setStatus('adsStatus', true, 'Ads ✓');
     return true;
   } catch (e) {
-    console.warn('Adsgram init error:', e);
+    console.warn('Adsgram error:', e);
     setStatus('adsStatus', false, 'Ads ✗');
     return false;
   }
@@ -289,21 +287,27 @@ function initAdsgram() {
 
 // ================= API =================
 async function api(action, extra = {}) {
-  if (!supabase) return null;
+  if (!supabaseClient) return null;
   try {
-    const { data, error } = await supabase.functions.invoke(API_FUNCTION, {
-      body: { action, telegram_id: currentUserId, ...extra }
+    const { data, error } = await supabaseClient.functions.invoke(API_FUNCTION, {
+      body: Object.assign({ action: action, telegram_id: currentUserId }, extra)
     });
-    if (error) { console.warn('API error:', error); return null; }
+    if (error) {
+      console.warn('API error:', error);
+      setStatus('apiStatus', false, 'API ✗');
+      return null;
+    }
+    setStatus('apiStatus', true, 'API ✓');
     return data;
   } catch (e) {
     console.warn('API exception:', e);
+    setStatus('apiStatus', false, 'API ✗');
     return null;
   }
 }
 
 async function ensureUser() {
-  if (!supabase || !currentUserId) return null;
+  if (!supabaseClient || !currentUserId) return null;
   const res = await api('ensure_user', {
     username: tgUser?.username || null,
     first_name: tgUser?.first_name || null,
@@ -360,15 +364,13 @@ async function watchAd() {
 
   try {
     const result = await adController.show();
-    console.log('Ad result:', result);
-
     if (result && result.done) {
       const r = await api('reward', { type: 'ad' });
-      if (r?.success) {
+      if (r && r.success) {
         showToast('+0.00025 TON earned! 🎉');
         await refreshUI();
       } else {
-        showToast(r?.error || 'Reward failed.');
+        showToast((r && r.error) || 'Reward failed.');
       }
     } else {
       showToast('Ad not completed.');
@@ -386,22 +388,20 @@ async function watchAd() {
 async function dailyCheckin() {
   if (!currentUserId) { showToast('Open in Telegram.'); return; }
   const r = await api('reward', { type: 'checkin' });
-  if (r?.success) { showToast('+0.00010 TON!'); await refreshUI(); }
-  else showToast(r?.error || 'Check-in failed.');
+  if (r && r.success) { showToast('+0.00010 TON!'); await refreshUI(); }
+  else showToast((r && r.error) || 'Check-in failed.');
 }
-window.dailyCheckin = dailyCheckin;
 
 // ================= WITHDRAW =================
 async function requestWithdraw() {
   if (!currentUserId) { showToast('Open in Telegram.'); return; }
-  const wallet = $('payoutWallet')?.value.trim();
+  const wallet = $('payoutWallet') ? $('payoutWallet').value.trim() : '';
   if (!wallet) { showToast('Enter wallet address.'); return; }
   const r = await api('withdraw', { wallet_address: wallet });
-  if (r?.error) { showToast(r.error); return; }
+  if (r && r.error) { showToast(r.error); return; }
   showToast('Withdrawal requested!');
   await refreshUI();
 }
-window.requestWithdraw = requestWithdraw;
 
 // ================= ADMIN =================
 async function loadAdmin() {
@@ -415,46 +415,61 @@ async function loadAdmin() {
   const w = $('adminWithdrawals');
   if (w) {
     w.innerHTML = data.pending.length
-      ? data.pending.map(p => `<div class="stat"><label>${p.telegram_id} · ${Number(p.amount).toFixed(5)} TON</label><b>${p.wallet_address.slice(0,10)}...</b></div>`).join('')
+      ? data.pending.map(function(p) {
+          return '<div class="stat"><label>' + p.telegram_id + ' · ' + Number(p.amount).toFixed(5) + ' TON</label><b>' + String(p.wallet_address).slice(0,10) + '...</b></div>';
+        }).join('')
       : 'No pending withdrawals.';
   }
 }
-window.loadAdmin = loadAdmin;
 
 async function createTask() {
-  const title = $('newTaskTitle')?.value.trim();
-  const reward = parseFloat($('newTaskReward')?.value);
-  const url = $('newTaskUrl')?.value.trim();
+  const title = $('newTaskTitle') ? $('newTaskTitle').value.trim() : '';
+  const reward = parseFloat($('newTaskReward') ? $('newTaskReward').value : '0');
+  const url = $('newTaskUrl') ? $('newTaskUrl').value.trim() : '';
   if (!title || !reward) { showToast('Fill title & reward.'); return; }
   await api('create_task', {
     admin_id: currentUserId,
-    payload: { title, reward, url }
+    payload: { title: title, reward: reward, url: url }
   });
   showToast('Task created!');
   if ($('newTaskTitle')) $('newTaskTitle').value = '';
   if ($('newTaskReward')) $('newTaskReward').value = '';
   if ($('newTaskUrl')) $('newTaskUrl').value = '';
 }
-window.createTask = createTask;
 
 // ================= INIT =================
-window.addEventListener('DOMContentLoaded', () => {
+function init() {
   console.log('App starting...');
 
   initTelegram();
   initSupabase();
   initAdsgram();
 
-  const btn = $('watchAdBtn');
-  if (btn) {
-    btn.addEventListener('click', watchAd);
-    console.log('Ad button listener attached');
-  }
+  const adBtn = $('watchAdBtn');
+  if (adBtn) adBtn.addEventListener('click', watchAd);
 
-  if (currentUserId && supabase) {
-    refreshUI().catch(e => console.warn('refreshUI error:', e));
+  const profileBtn = $('profileBtn');
+  if (profileBtn) profileBtn.addEventListener('click', function() { go('profile'); });
+
+  const checkinBtn = $('checkinBtn');
+  if (checkinBtn) checkinBtn.addEventListener('click', dailyCheckin);
+
+  const withdrawBtn = $('withdrawBtn');
+  if (withdrawBtn) withdrawBtn.addEventListener('click', requestWithdraw);
+
+  const ctBtn = $('createTaskBtn');
+  if (ctBtn) ctBtn.addEventListener('click', createTask);
+
+  if (currentUserId && supabaseClient) {
+    refreshUI().catch(function(e) { console.warn('refreshUI error:', e); });
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 </script>
 </body>
 </html>
