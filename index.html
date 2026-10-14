@@ -5,21 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0b0f">
 <title>Flash ⚡ Ton</title>
-
-<!-- Telegram WebApp MUST load first -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<!-- AdsGram SDK -->
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
-:root{--bg:#080a11;--panel:#11141d;--panel2:#171b27;--line:#292e3d;--muted:#9299aa;--white:#f7f8fc;--mint:#abf7d5;--blue:#819cff;--gold:#f7cf83;--violet:#a78bfa}
+:root{--bg:#080a11;--panel:#11141d;--line:#292e3d;--muted:#9299aa;--white:#f7f8fc;--mint:#abf7d5}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:104px;background-image:radial-gradient(ellipse at 88% 2%,rgba(130,112,255,.2),transparent 34%),radial-gradient(ellipse at 0% 38%,rgba(77,205,164,.09),transparent 42%),linear-gradient(160deg,#0a0c14,#080a11 62%)}
 button{font:inherit;color:inherit;border:0;cursor:pointer}
-button:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
 .app{max-width:480px;margin:auto;min-height:100vh;position:relative;padding:0 20px 28px}
 .top{height:76px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font:800 19px Manrope,sans-serif;letter-spacing:-.6px}
@@ -28,32 +22,30 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
 .greeting{margin:18px 0 4px;color:var(--muted);font-size:13px}
 .headline{font:800 27px Manrope,sans-serif;letter-spacing:-1.2px;margin:0 0 20px}
-.balance{position:relative;overflow:hidden;border:1px solid #454064;border-radius:26px;padding:23px;background:radial-gradient(ellipse at 100% 0%,#7770ff2a,transparent 43%),linear-gradient(135deg,#202b35,#171b27 58%,#201c35);box-shadow:0 22px 58px #0007,0 0 35px #8270ff10,inset 0 1px #ffffff12}
-.balance:after{content:"";position:absolute;width:205px;height:205px;right:-55px;top:-100px;border-radius:50%;border:1px solid #c9c1ff1c;box-shadow:0 0 0 19px #c9c1ff0a,0 0 0 40px #c9c1ff06}
+.balance{position:relative;overflow:hidden;border:1px solid #454064;border-radius:26px;padding:23px;background:radial-gradient(ellipse at 100% 0%,#7770ff2a,transparent 43%),linear-gradient(135deg,#202b35,#171b27 58%,#201c35);box-shadow:0 22px 58px #0007}
 .bal-top{display:flex;justify-content:space-between;align-items:center;color:#d5d7e2;font-size:12px}
 .ton-mark{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#dff7ee;color:#1c5141;font-weight:900;font-size:13px}
-.balance-value{font:800 40px Manrope,sans-serif;letter-spacing:-1.8px;margin:22px 0 2px;text-shadow:0 3px 25px #a78bfa2b}
+.balance-value{font:800 40px Manrope,sans-serif;letter-spacing:-1.8px;margin:22px 0 2px}
 .balance-value small{font-size:16px;letter-spacing:0;color:#c4c6d4;margin-left:5px}
 .usd{font-size:12px;color:#a8adbd}
 .bal-foot{display:flex;justify-content:space-between;align-items:end;margin-top:20px}
 .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#b1b5c6;font-weight:700}
 .connected{font-size:11px;color:#d4d5e2}
-.actions{display:grid;grid-template-columns:1fr;gap:11px;margin:15px 0 25px}
+.actions{display:grid;gap:11px;margin:15px 0 25px}
 .action{height:53px;border-radius:16px;font-size:13px;font-weight:700}
-.primary{background:linear-gradient(105deg,#b8f7d9,#8edfc2);color:#10241c;box-shadow:0 8px 27px #8de3c531,inset 0 1px #ffffff8a}
+.primary{background:linear-gradient(105deg,#b8f7d9,#8edfc2);color:#10241c}
 .primary:disabled{opacity:.5;cursor:not-allowed}
 .secondary{background:#181b22;border:1px solid #2b303b;color:#e5e8ed}
 .section-head{display:flex;align-items:center;justify-content:space-between;margin:27px 0 13px}
-.section-head h2{font:700 16px Manrope,sans-serif;letter-spacing:-.3px;margin:0}
+.section-head h2{font:700 16px Manrope,sans-serif;margin:0}
 .link{background:transparent;color:#a9e7ce;font-size:12px;font-weight:700}
 .earn-card{padding:16px;background:linear-gradient(110deg,#181c22,#14171d);border:1px solid #292e37;border-radius:19px;display:flex;align-items:center;gap:13px}
 .earn-icon{width:43px;height:43px;border-radius:14px;background:#243b34;color:var(--mint);display:grid;place-items:center;font-size:18px}
 .earn-copy{flex:1}
 .earn-copy strong{font-size:13px;display:block;margin-bottom:4px}
 .earn-copy span{font-size:11px;color:var(--muted)}
-.earn-cta{background:#252c2c;color:var(--mint);padding:10px 12px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
+.earn-cta{background:#252c2c;color:var(--mint);padding:10px 12px;border-radius:12px;font-size:11px;font-weight:700}
 .task{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #20232b}
-.task:last-child{border-bottom:0}
 .task .earn-icon{width:40px;height:40px;background:#202a37;color:#9dbdff}
 .task-info{flex:1}
 .task-info strong{display:block;font-size:12px;margin-bottom:4px}
@@ -62,147 +54,127 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
 .page{display:none}
 .page.active{display:block;animation:appear .25s ease}
 @keyframes appear{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
-.title{font:800 25px Manrope,sans-serif;letter-spacing:-1px;margin:20px 0 5px}
+.title{font:800 25px Manrope,sans-serif;margin:20px 0 5px}
 .sub{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 21px}
 .stat{padding:17px;border:1px solid var(--line);border-radius:17px;background:var(--panel);margin-bottom:11px;display:flex;justify-content:space-between;align-items:center}
 .stat label{font-size:11px;color:var(--muted)}
 .stat b{font:700 17px Manrope}
 .withdraw-box{padding:18px;border:1px solid var(--line);background:var(--panel);border-radius:20px;margin-top:14px}
-.withdraw-box h3{font:700 14px Manrope;margin:0 0 7px}
-.withdraw-box p{font-size:11px;color:var(--muted);line-height:1.6;margin:0 0 15px}
 .input{width:100%;padding:14px;border-radius:13px;background:#0d0f14;color:white;border:1px solid #2b303a;margin-bottom:11px;outline:none}
-.input:focus{border-color:#9bd9bd}
 .wide{width:100%;height:48px;border-radius:14px;font-weight:700}
-.min-note{text-align:center;color:var(--muted);font-size:10px;margin-top:12px}
 .progress{height:5px;background:#292d35;border-radius:9px;margin-top:12px;overflow:hidden}
-.progress i{height:100%;width:0%;display:block;background:linear-gradient(90deg,#74c5a1,#b6f1d6);border-radius:9px;transition:width .3s}
+.progress i{height:100%;width:0%;display:block;background:linear-gradient(90deg,#74c5a1,#b6f1d6);transition:width .3s}
 .nav{position:fixed;z-index:5;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);padding:10px 13px calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;background:#101217ed;backdrop-filter:blur(20px);border-top:1px solid #282b33}
 .nav button{flex:1;background:none;color:#707683;font-size:9px;font-weight:600;padding:5px 0}
 .nav .ni{display:block;font-size:19px;margin-bottom:4px}
 .nav button.active{color:var(--mint)}
 .notice{border:1px solid #37362e;background:#1d1b17;color:#d6c69c;border-radius:14px;padding:12px;font-size:10px;line-height:1.6;margin-top:17px}
-.toast{position:fixed;z-index:15;bottom:92px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#edf5f0;color:#173126;border-radius:13px;padding:12px 16px;font-size:12px;box-shadow:0 8px 35px #0007;transition:.2s;white-space:nowrap;max-width:90vw}
+.toast{position:fixed;z-index:15;bottom:92px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:#edf5f0;color:#173126;border-radius:13px;padding:12px 16px;font-size:12px;transition:.2s;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.status-badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:700}
+.status-badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:700;margin-right:4px}
 .status-ok{background:#1a3a2a;color:#7de0b0}
 .status-bad{background:#3a1a1a;color:#ff9b9b}
-@media(min-width:600px){body{padding-top:25px}.app{border:1px solid #222630;border-radius:28px;min-height:calc(100vh - 50px);padding-left:24px;padding-right:24px}.nav{bottom:25px;border-radius:0 0 28px 28px}}
+.admin-empty{padding:24px 16px;text-align:center;border:1px dashed #343848;border-radius:16px;color:#9ca3b4;font-size:12px}
 </style>
 </head>
 <body>
 <main class="app">
-
 <header class="top">
- <div class="brand">
-  <span>Flash</span>
-  <span style="color:#f5cc70;margin-left:-5px">⚡</span>
-  <span style="color:#aeb5c8;font-weight:600;margin-left:-5px">Ton</span>
- </div>
- <button class="profile" onclick="go('profile')">✦</button>
+<div class="brand"><span>Flash</span><span style="color:#f5cc70;margin-left:-5px">⚡</span><span style="color:#aeb5c8;font-weight:600;margin-left:-5px">Ton</span></div>
+<button class="profile" onclick="go('profile')">✦</button>
 </header>
 
 <section id="home" class="page active">
- <div style="display:flex;justify-content:space-between;align-items:center">
-  <div>
-   <p class="greeting">A little progress, every day.</p>
-   <h1 class="headline">Good evening<span style="color:var(--mint)">.</span></h1>
-  </div>
-  <span class="pill"><i class="dot"></i>TON network</span>
- </div>
-
- <div class="balance">
-  <div class="bal-top">
-   <span style="display:flex;align-items:center;gap:9px"><i class="ton-mark">₮</i> Available balance</span>
-   <span>•••</span>
-  </div>
-  <div class="balance-value" id="balanceValue">0.00000 <small>TON</small></div>
-  <div class="usd" id="usdValue">≈ $0.00 USD</div>
-  <div class="bal-foot">
-   <span class="eyebrow">Your rewards</span>
-   <span class="connected" id="walletStatus">Wallet not connected</span>
-  </div>
- </div>
-
- <div class="actions">
-  <button class="action primary" id="watchAdBtn" type="button">
-   ▶ &nbsp;Watch an ad <span style="opacity:.72">· 0.00025 TON</span>
-  </button>
- </div>
-
- <div class="earn-card">
-  <div class="earn-icon">✧</div>
-  <div class="earn-copy">
-   <strong>Your daily momentum</strong>
-   <span id="dailyProgress">0 of 5 ad views today</span>
-   <div class="progress"><i id="dailyProgressBar"></i></div>
-  </div>
-  <button class="earn-cta" onclick="go('tasks')">Explore</button>
- </div>
-
- <div class="section-head"><h2>Earn more</h2><button class="link" onclick="go('tasks')">See all →</button></div>
- <div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>Come back tomorrow</span></div><span class="reward">+0.00010 TON</span></div>
- <div class="task"><div class="earn-icon">↗</div><div class="task-info"><strong>Invite a friend</strong><span>Share your personal invite link</span></div><span class="reward">+0.001 TON</span></div>
-
- <div class="notice" id="statusNotice">
-  Status: <span id="tgStatus" class="status-badge status-bad">Telegram ?</span>
-  <span id="adsStatus" class="status-badge status-bad">Ads ?</span>
-  <span id="dbStatus" class="status-badge status-bad">DB ?</span>
- </div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div><p class="greeting">A little progress, every day.</p><h1 class="headline">Good evening<span style="color:var(--mint)">.</span></h1></div>
+<span class="pill"><i class="dot"></i>TON</span>
+</div>
+<div class="balance">
+<div class="bal-top"><span style="display:flex;align-items:center;gap:9px"><i class="ton-mark">₮</i> Balance</span><span>•••</span></div>
+<div class="balance-value" id="balanceValue">0.00000 <small>TON</small></div>
+<div class="usd" id="usdValue">≈ $0.00 USD</div>
+<div class="bal-foot"><span class="eyebrow">Your rewards</span><span class="connected" id="walletStatus">Not connected</span></div>
+</div>
+<div class="actions">
+<button class="action primary" id="watchAdBtn" type="button">▶ &nbsp;Watch an ad · 0.00025 TON</button>
+</div>
+<div class="earn-card">
+<div class="earn-icon">✧</div>
+<div class="earn-copy"><strong>Daily momentum</strong><span id="dailyProgress">0 of 5 ads today</span><div class="progress"><i id="dailyProgressBar"></i></div></div>
+<button class="earn-cta" onclick="go('tasks')">Explore</button>
+</div>
+<div class="section-head"><h2>Earn more</h2><button class="link" onclick="go('tasks')">See all →</button></div>
+<div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>+0.00010 TON</span></div><span class="reward">+0.0001</span></div>
+<div class="task"><div class="earn-icon">↗</div><div class="task-info"><strong>Invite friend</strong><span>+0.001 TON</span></div><span class="reward">+0.001</span></div>
+<div class="notice">
+Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
+<span id="adsStatus" class="status-badge status-bad">Ads ?</span>
+<span id="dbStatus" class="status-badge status-bad">DB ?</span>
+</div>
 </section>
 
 <section id="tasks" class="page">
- <h1 class="title">Tasks</h1>
- <p class="sub">Small actions, steady rewards.</p>
- <div class="stat"><label>Tasks completed</label><b id="tasksCompleted">0 <small style="color:#89909c;font-size:11px">/ 3</small></b></div>
- <div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>One check-in every 24 hours</span></div><button class="earn-cta" onclick="dailyCheckin()">Claim</button></div>
- <div class="task"><div class="earn-icon">➤</div><div class="task-info"><strong>Join TON community</strong><span>Stay in the loop</span></div><span class="reward">+0.00050 TON</span></div>
- <div class="task"><div class="earn-icon">↗</div><div class="task-info"><strong>Invite a friend</strong><span>Share your invite link</span></div><span class="reward">+0.001 TON</span></div>
+<h1 class="title">Tasks</h1>
+<p class="sub">Small actions, steady rewards.</p>
+<div class="stat"><label>Tasks completed</label><b id="tasksCompleted">0 / 3</b></div>
+<div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>One per 24h</span></div><button class="earn-cta" onclick="dailyCheckin()">Claim</button></div>
 </section>
 
 <section id="withdraw" class="page">
- <h1 class="title">Withdraw</h1>
- <p class="sub">Send earned TON to your connected wallet.</p>
- <div class="stat"><label>Available to withdraw</label><b id="withdrawBalance">0.00000 TON</b></div>
- <div class="stat"><label>Minimum withdrawal</label><b style="color:var(--mint)">0.05 TON</b></div>
- <div class="withdraw-box">
-  <h3>TON wallet</h3>
-  <p>Send payout requests to admin after connecting your wallet.</p>
-  <input class="input" id="payoutWallet" placeholder="Enter TON wallet address (UQ...)">
-  <button class="wide secondary" onclick="requestWithdraw()">↗ &nbsp; Request withdrawal</button>
-  <p class="min-note">Minimum payout 0.05 TON · Manual admin approval</p>
- </div>
+<h1 class="title">Withdraw</h1>
+<p class="sub">Send earned TON to your wallet.</p>
+<div class="stat"><label>Available</label><b id="withdrawBalance">0.00000 TON</b></div>
+<div class="stat"><label>Minimum</label><b style="color:var(--mint)">0.05 TON</b></div>
+<div class="withdraw-box">
+<h3>TON wallet</h3>
+<input class="input" id="payoutWallet" placeholder="UQ... or EQ...">
+<button class="wide secondary" onclick="requestWithdraw()">↗ Request withdrawal</button>
+</div>
 </section>
 
 <section id="profile" class="page">
- <h1 class="title">Your account</h1>
- <p class="sub">Your rewards journey, at a glance.</p>
- <div class="stat"><label>Network</label><b>TON</b></div>
- <div class="stat"><label>Ads watched</label><b id="profileAds">0</b></div>
- <div class="stat"><label>Tasks completed</label><b id="profileTasks">0</b></div>
- <div class="stat"><label>User ID</label><b id="profileUserId" style="font-size:11px">—</b></div>
- <div class="stat"><label>Username</label><b id="profileUsername" style="font-size:11px">—</b></div>
+<h1 class="title">Account</h1>
+<div class="stat"><label>Network</label><b>TON</b></div>
+<div class="stat"><label>Ads watched</label><b id="profileAds">0</b></div>
+<div class="stat"><label>Tasks</label><b id="profileTasks">0</b></div>
+<div class="stat"><label>User ID</label><b id="profileUserId" style="font-size:11px">—</b></div>
+</section>
+
+<section id="admin" class="page">
+<h1 class="title">Admin</h1>
+<div class="stat"><label>Total users</label><b id="adminTotalUsers">—</b></div>
+<div class="stat"><label>Ads watched</label><b id="adminTotalAds">—</b></div>
+<div class="stat"><label>Pending withdraw</label><b id="adminPending">—</b></div>
+<div class="stat"><label>Total paid</label><b id="adminTotalPaid">— TON</b></div>
+<div class="withdraw-box">
+<h3>Create task</h3>
+<input class="input" id="newTaskTitle" placeholder="Title">
+<input class="input" id="newTaskReward" type="number" step="0.00001" placeholder="Reward TON">
+<input class="input" id="newTaskUrl" type="url" placeholder="URL (optional)">
+<button class="wide secondary" onclick="createTask()">＋ Publish</button>
+</div>
+<div id="adminWithdrawals" class="admin-empty">Loading...</div>
 </section>
 
 <nav class="nav">
- <button class="active" data-page="home" onclick="go('home')"><span class="ni">⌂</span>Home</button>
- <button data-page="tasks" onclick="go('tasks')"><span class="ni">▤</span>Tasks</button>
- <button data-page="withdraw" onclick="go('withdraw')"><span class="ni">↗</span>Withdraw</button>
- <button data-page="profile" onclick="go('profile')"><span class="ni">◎</span>Profile</button>
+<button class="active" data-page="home" onclick="go('home')"><span class="ni">⌂</span>Home</button>
+<button data-page="tasks" onclick="go('tasks')"><span class="ni">▤</span>Tasks</button>
+<button data-page="withdraw" onclick="go('withdraw')"><span class="ni">↗</span>Withdraw</button>
+<button data-page="profile" onclick="go('profile')"><span class="ni">◎</span>Profile</button>
+<button id="adminNav" data-page="admin" onclick="go('admin')" style="display:none"><span class="ni">⚙</span>Admin</button>
 </nav>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ============ CONFIG ============
 const SUPABASE_URL = 'https://fxehjnyocnlzvaannhyg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZWhqbnlvY25senZhYW5uaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc2MzIwMDAsImV4cCI6MjA0MzIwODAwMH0.REPLACE_WITH_YOUR_ANON_KEY';
 const ADSGRAM_BLOCK_ID = 'YOUR_ADSGRAM_BLOCK_ID';
 const ADMIN_TELEGRAM_ID = '8280934931';
-const REWARD_PER_AD = 0.00025;
 const DAILY_AD_LIMIT = 5;
+const API_FUNCTION = 'flash-api';
 
-// ============ SETUP ============
 let supabase = null;
 let adController = null;
 let currentUserId = null;
@@ -211,142 +183,63 @@ let currentUser = null;
 const tg = window.Telegram?.WebApp;
 const tgUser = tg?.initDataUnsafe?.user;
 
-// Status badges
 function setStatus(id, ok, text) {
   const el = document.getElementById(id);
-  if (!el) return;
-  el.className = 'status-badge ' + (ok ? 'status-ok' : 'status-bad');
-  el.textContent = text;
+  if (el) { el.className = 'status-badge ' + (ok ? 'status-ok' : 'status-bad'); el.textContent = text; }
 }
 
-// ============ TELEGRAM ============
 function initTelegram() {
-  if (!tg) {
-    setStatus('tgStatus', false, 'Telegram ✗');
-    console.warn('Not running inside Telegram WebApp');
-    return false;
-  }
-  tg.ready();
-  tg.expand();
+  if (!tg) { setStatus('tgStatus', false, 'TG ✗'); return false; }
+  tg.ready(); tg.expand();
   currentUserId = tgUser?.id ? String(tgUser.id) : null;
-  setStatus('tgStatus', true, 'Telegram ✓');
+  setStatus('tgStatus', true, 'TG ✓');
+  if (currentUserId === ADMIN_TELEGRAM_ID) {
+    document.getElementById('adminNav').style.display = 'block';
+  }
   return true;
 }
 
-// ============ SUPABASE ============
 function initSupabase() {
   if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('REPLACE')) {
-    setStatus('dbStatus', false, 'DB ✗ key');
-    console.warn('Supabase anon key missing');
-    return false;
+    setStatus('dbStatus', false, 'DB ✗'); return false;
   }
-  try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    setStatus('dbStatus', true, 'DB ✓');
-    return true;
-  } catch (e) {
-    setStatus('dbStatus', false, 'DB ✗');
-    console.warn('Supabase init failed', e);
-    return false;
-  }
+  try { supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); setStatus('dbStatus', true, 'DB ✓'); return true; }
+  catch (e) { setStatus('dbStatus', false, 'DB ✗'); return false; }
 }
 
-// ============ ADSGRAM ============
 function initAdsgram() {
-  if (!window.Adsgram) {
-    setStatus('adsStatus', false, 'Ads ✗ SDK');
-    console.warn('Adsgram SDK not loaded');
-    return false;
-  }
-  if (!ADSGRAM_BLOCK_ID || ADSGRAM_BLOCK_ID.includes('YOUR')) {
-    setStatus('adsStatus', false, 'Ads ✗ blockId');
-    console.warn('Adsgram blockId missing');
-    return false;
-  }
-  try {
-    adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-    setStatus('adsStatus', true, 'Ads ✓');
-    console.log('Adsgram ready');
-    return true;
-  } catch (e) {
-    setStatus('adsStatus', false, 'Ads ✗ init');
-    console.warn('Adsgram init failed', e);
-    return false;
-  }
+  if (!window.Adsgram) { setStatus('adsStatus', false, 'Ads ✗'); return false; }
+  if (!ADSGRAM_BLOCK_ID || ADSGRAM_BLOCK_ID.includes('YOUR')) { setStatus('adsStatus', false, 'Ads ✗'); return false; }
+  try { adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }); setStatus('adsStatus', true, 'Ads ✓'); return true; }
+  catch (e) { setStatus('adsStatus', false, 'Ads ✗'); return false; }
 }
 
-// ============ DB HELPERS ============
+async function api(action, extra = {}) {
+  const { data, error } = await supabase.functions.invoke(API_FUNCTION, {
+    body: { action, telegram_id: currentUserId, ...extra }
+  });
+  if (error) { console.warn('API error:', error); return null; }
+  return data;
+}
+
 async function ensureUser() {
   if (!supabase || !currentUserId) return null;
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('telegram_id', currentUserId)
-      .maybeSingle();
-
-    if (error) { console.warn('ensureUser select error', error); return null; }
-
-    if (!data) {
-      const { data: created, error: insErr } = await supabase.from('users').insert({
-        telegram_id: currentUserId,
-        username: tgUser?.username || null,
-        first_name: tgUser?.first_name || null,
-        balance: 0,
-        ads_watched: 0,
-        tasks_completed: 0,
-        wallet_address: null
-      }).select().single();
-      if (insErr) { console.warn('ensureUser insert error', insErr); return null; }
-      return created;
-    }
-    return data;
-  } catch (e) {
-    console.warn('ensureUser exception', e);
-    return null;
-  }
+  const res = await api('ensure_user', {
+    username: tgUser?.username || null,
+    first_name: tgUser?.first_name || null,
+  });
+  return res?.user || null;
 }
 
 async function getTodayAdCount() {
-  if (!supabase || !currentUserId) return 0;
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const { count } = await supabase
-    .from('transactions')
-    .select('*', { count: 'exact', head: true })
-    .eq('telegram_id', currentUserId)
-    .eq('type', 'ad')
-    .gte('created_at', startOfDay.toISOString());
-  return count || 0;
-}
-
-async function rewardUser(amount, type) {
-  if (!supabase || !currentUserId) return;
-  const user = await ensureUser();
-  if (!user) return;
-
-  const newBalance = Number(user.balance || 0) + amount;
-  const updates = { balance: newBalance };
-  if (type === 'ad') updates.ads_watched = (user.ads_watched || 0) + 1;
-  if (type === 'task' || type === 'checkin') updates.tasks_completed = (user.tasks_completed || 0) + 1;
-
-  const { error: upErr } = await supabase.from('users').update(updates).eq('telegram_id', currentUserId);
-  if (upErr) { console.warn('reward update error', upErr); return; }
-
-  await supabase.from('transactions').insert({
-    telegram_id: currentUserId,
-    type: type,
-    amount: amount
-  });
-
-  await refreshUI();
+  const res = await api('today_ads');
+  return res?.count || 0;
 }
 
 async function refreshUI() {
   const user = await ensureUser();
   if (!user) return;
   currentUser = user;
-
   const bal = Number(user.balance || 0);
   document.getElementById('balanceValue').innerHTML = bal.toFixed(5) + ' <small>TON</small>';
   document.getElementById('usdValue').textContent = '≈ $' + (bal * 1.6).toFixed(4) + ' USD';
@@ -354,112 +247,90 @@ async function refreshUI() {
   document.getElementById('profileAds').textContent = user.ads_watched || 0;
   document.getElementById('profileTasks').textContent = user.tasks_completed || 0;
   document.getElementById('profileUserId').textContent = currentUserId || '—';
-  document.getElementById('profileUsername').textContent = user.username ? '@' + user.username : (user.first_name || '—');
-
   const todayCount = await getTodayAdCount();
-  document.getElementById('dailyProgress').textContent = todayCount + ' of ' + DAILY_AD_LIMIT + ' ad views today';
+  document.getElementById('dailyProgress').textContent = todayCount + ' of ' + DAILY_AD_LIMIT + ' ads today';
   document.getElementById('dailyProgressBar').style.width = Math.min(100, (todayCount / DAILY_AD_LIMIT) * 100) + '%';
+  document.getElementById('tasksCompleted').textContent = (user.tasks_completed || 0) + ' / 3';
 }
 
-// ============ AD BUTTON ============
 async function watchAd() {
   const btn = document.getElementById('watchAdBtn');
-
-  if (!currentUserId) {
-    showToast('Open inside Telegram to earn.');
-    return;
-  }
-  if (!adController) {
-    showToast('Ad provider not ready. Check block ID.');
-    return;
-  }
-
-  const todayCount = await getTodayAdCount();
-  if (todayCount >= DAILY_AD_LIMIT) {
-    showToast('Daily limit reached. Come back tomorrow.');
-    return;
-  }
-
+  if (!currentUserId) { showToast('Open inside Telegram.'); return; }
+  if (!adController) { showToast('Ad provider not ready.'); return; }
+  const today = await getTodayAdCount();
+  if (today >= DAILY_AD_LIMIT) { showToast('Daily limit reached.'); return; }
   btn.disabled = true;
-  const oldText = btn.innerHTML;
+  const old = btn.innerHTML;
   btn.innerHTML = '⏳ Loading ad...';
-
   try {
     const result = await adController.show();
-    console.log('Ad result:', result);
-
     if (result && result.done) {
-      await rewardUser(REWARD_PER_AD, 'ad');
-      showToast('+' + REWARD_PER_AD + ' TON earned! 🎉');
+      const r = await api('reward', { type: 'ad' });
+      if (r?.success) { showToast('+0.00025 TON earned! 🎉'); await refreshUI(); }
+      else showToast(r?.error || 'Reward failed.');
     } else {
       showToast('Ad not completed.');
     }
   } catch (e) {
-    console.warn('Ad error:', e);
-    showToast('Ad not available. Try again later.');
+    console.warn(e);
+    showToast('Ad not available.');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = oldText;
+    btn.innerHTML = old;
   }
 }
 
-// ============ CHECK-IN ============
 async function dailyCheckin() {
-  if (!currentUserId) { showToast('Open in Telegram.'); return; }
-  const user = await ensureUser();
-  if (!user) return;
+  if (!currentUserId) return;
+  const r = await api('reward', { type: 'checkin' });
+  if (r?.success) { showToast('+0.00010 TON!'); await refreshUI(); }
+  else showToast(r?.error || 'Check-in failed.');
+}
 
-  const last = user.last_checkin ? new Date(user.last_checkin) : null;
-  const now = new Date();
-  if (last && (now - last) < 24 * 60 * 60 * 1000) {
-    showToast('Already checked in today.');
-    return;
-  }
-
-  await supabase.from('users').update({
-    last_checkin: now.toISOString(),
-    balance: Number(user.balance || 0) + 0.00010,
-    tasks_completed: (user.tasks_completed || 0) + 1
-  }).eq('telegram_id', currentUserId);
-
-  await supabase.from('transactions').insert({
-    telegram_id: currentUserId,
-    type: 'checkin',
-    amount: 0.00010
-  });
-
-  showToast('+0.00010 TON check-in bonus!');
+async function requestWithdraw() {
+  if (!currentUserId) return;
+  const wallet = document.getElementById('payoutWallet').value.trim();
+  if (!wallet) { showToast('Enter wallet address.'); return; }
+  const r = await api('withdraw', { wallet_address: wallet });
+  if (r?.error) { showToast(r.error); return; }
+  showToast('Withdrawal requested!');
   await refreshUI();
 }
 
-// ============ WITHDRAW ============
-async function requestWithdraw() {
-  if (!currentUserId) { showToast('Open in Telegram.'); return; }
-  const wallet = document.getElementById('payoutWallet').value.trim();
-  if (!wallet || wallet.length < 20) { showToast('Enter a valid TON wallet.'); return; }
-
-  const user = await ensureUser();
-  if (!user) return;
-
-  const bal = Number(user.balance || 0);
-  if (bal < 0.05) { showToast('Minimum 0.05 TON required.'); return; }
-
-  const { error } = await supabase.from('withdrawals').insert({
-    telegram_id: currentUserId,
-    amount: bal,
-    wallet_address: wallet,
-    status: 'pending'
-  });
-
-  if (error) { showToast('Request failed.'); return; }
-  showToast('Withdrawal request sent!');
+async function loadAdmin() {
+  if (currentUserId !== ADMIN_TELEGRAM_ID) return;
+  const data = await api('load_admin', { admin_id: currentUserId });
+  if (!data) return;
+  document.getElementById('adminTotalUsers').textContent = data.usersCount;
+  document.getElementById('adminTotalAds').textContent = data.totalAds;
+  document.getElementById('adminPending').textContent = data.pending.length;
+  document.getElementById('adminTotalPaid').textContent = Number(data.totalPaid).toFixed(5) + ' TON';
+  const w = document.getElementById('adminWithdrawals');
+  w.innerHTML = data.pending.length
+    ? data.pending.map(p => `<div class="stat"><label>${p.telegram_id} · ${Number(p.amount).toFixed(5)} TON</label><b>${p.wallet_address.slice(0,10)}...</b></div>`).join('')
+    : 'No pending withdrawals.';
 }
 
-// ============ NAV ============
+async function createTask() {
+  const title = document.getElementById('newTaskTitle').value.trim();
+  const reward = parseFloat(document.getElementById('newTaskReward').value);
+  const url = document.getElementById('newTaskUrl').value.trim();
+  if (!title || !reward) { showToast('Fill title & reward.'); return; }
+  await api('create_task', {
+    admin_id: currentUserId,
+    payload: { title, reward, url }
+  });
+  showToast('Task created!');
+  document.getElementById('newTaskTitle').value = '';
+  document.getElementById('newTaskReward').value = '';
+  document.getElementById('newTaskUrl').value = '';
+}
+
 function go(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page));
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (page === 'admin') loadAdmin();
 }
 
 function showToast(text) {
@@ -470,19 +341,12 @@ function showToast(text) {
   window.toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-// ============ INIT ============
 window.addEventListener('DOMContentLoaded', async () => {
-  const tgOk = initTelegram();
-  const dbOk = initSupabase();
-  const adsOk = initAdsgram();
-
+  initTelegram();
+  initSupabase();
+  initAdsgram();
   document.getElementById('watchAdBtn').addEventListener('click', watchAd);
-
-  if (tgOk && dbOk) {
-    await refreshUI();
-  }
-
-  console.log('Init:', { tgOk, dbOk, adsOk });
+  if (currentUserId && supabase) await refreshUI();
 });
 </script>
 </body>
