@@ -602,11 +602,6 @@ body::before {
         <div class="menu-text"><div class="t">Tasks</div><div class="s">Complete tasks & earn TON</div></div>
         <div class="menu-arrow">›</div>
       </div>
-      <div class="menu-card" onclick="go('mining')">
-        <div class="menu-icon">⛏️</div>
-        <div class="menu-text"><div class="t">Mining</div><div class="s">Mine 0.0001 TON every hour</div></div>
-        <div class="menu-arrow">›</div>
-      </div>
       <div class="menu-card" onclick="go('profile')">
         <div class="menu-icon green">👤</div>
         <div class="menu-text"><div class="t">My Profile</div><div class="s">View your stats and history</div></div>
@@ -633,14 +628,6 @@ body::before {
       <button class="btn-secondary" id="addTaskBtn">➕ Publish Task</button>
     </div>
     <div id="tasksList"><div class="empty"><span class="loader"></span> Loading tasks...</div></div>
-  </div>
-
-  <div id="page-mining" class="page">
-    <div class="section-header"><div class="section-title">⛏️ Mining</div></div>
-    <div class="section-sub">60 min mining → 0.0001 TON. Watch an ad to collect your reward.</div>
-    <div class="mini-stat"><div class="icon">⛏️</div><div class="info"><div class="lbl">STATUS</div><div class="val highlight" id="mineStatus">Idle</div></div></div>
-    <div class="mini-stat"><div class="icon">⏱️</div><div class="info"><div class="lbl">TIME LEFT</div><div class="val" id="mineTime">--:--</div></div></div>
-    <button class="watch-btn" id="mineBtn" style="margin-top:20px;">⛏️ Start Mining</button>
   </div>
 
   <div id="page-withdraw" class="page">
@@ -697,7 +684,6 @@ body::before {
   <div class="nav" id="mainNav">
     <div class="nav-item active" data-page="home"><span class="ic">🏠</span>Home</div>
     <div class="nav-item" data-page="tasks"><span class="ic">📋</span>Tasks</div>
-    <div class="nav-item" data-page="mining"><span class="ic">⛏️</span>Mining</div>
     <div class="nav-item" data-page="withdraw"><span class="ic">💸</span>Withdraw</div>
     <div class="nav-item" data-page="referral"><span class="ic">👥</span>Referral</div>
     <div class="nav-item hidden" id="adminNav" data-page="admin"><span class="ic">⚙️</span>Admin</div>
@@ -771,7 +757,7 @@ async function connect() {
   retry.style.display = "none";
 
   if (!tg || !tg.initData) {
-    msg.innerHTML = "⚠️ This app only works inside Telegram.<br><br><small style='font-size:11px'>Open from the bot menu button.</small>";
+    msg.textContent = "Telegram session missing. Open this app using the bot menu button or Main Mini App link (not a regular web page or unsupported keyboard button).";
     msg.style.color = "#ef4444";
     return;
   }
@@ -805,7 +791,9 @@ async function connect() {
 
     renderDash(d);
   } catch (e) {
-    msg.innerHTML = "❌ Connection error<br><small style='color:#ef4444;font-size:11px'>" + e.message + "</small>";
+    msg.textContent = e.message === "Invalid initData"
+      ? "Telegram rejected this session. Check that the API BOT_TOKEN belongs to this exact bot, then close and reopen the Mini App from its bot menu."
+      : "Connection error: " + e.message;
     msg.style.color = "#ef4444";
     retry.style.display = "inline-block";
   }
@@ -847,7 +835,6 @@ function go(page) {
   document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add("active");
   if (page === "home") loadDash();
   if (page === "tasks") loadTasks();
-  if (page === "mining") loadMining();
   if (page === "withdraw") loadWithdraw();
   if (page === "referral") loadReferral();
   if (page === "profile") loadProfile();
@@ -962,50 +949,6 @@ document.getElementById("addTaskBtn").onclick = async () => {
   } catch (e) { toast(e.message, true); }
   finally { btn.disabled = false; btn.textContent = "➕ Publish Task"; }
 };
-
-// ============================================================
-// MINING
-// ============================================================
-let mTimer = null;
-async function loadMining() { try { renderMining(await api("mining_status")); } catch (e) { toast(e.message, true); } }
-function renderMining(d) {
-  const s = document.getElementById("mineStatus"), t = document.getElementById("mineTime"), b = document.getElementById("mineBtn");
-  clearInterval(mTimer);
-  if (d.canCollect) {
-    s.textContent = "Ready to collect"; t.textContent = "00:00";
-    b.textContent = "💎 Collect 0.0001 TON";
-    b.disabled = false; b.onclick = collectMining;
-  } else if (!d.canStart && d.remaining > 0) {
-    s.textContent = "Mining..."; b.textContent = "⛏️ Mining in progress..."; b.disabled = true;
-    let left = d.remaining;
-    const tick = () => {
-      if (left <= 0) { loadMining(); return; }
-      t.textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0");
-      left--;
-    };
-    tick(); mTimer = setInterval(tick, 1000);
-  } else {
-    s.textContent = "Idle"; t.textContent = "60:00";
-    b.textContent = "⛏️ Start Mining (60 min)";
-    b.disabled = false; b.onclick = startMining;
-  }
-}
-async function startMining() {
-  const b = document.getElementById("mineBtn"); b.disabled = true; b.textContent = "Starting...";
-  try { await api("mining_start"); toast("⛏️ Mining started!"); loadMining(); }
-  catch (e) { toast(e.message, true); loadMining(); }
-}
-async function collectMining() {
-  if (isDesktop) { toast("⚠️ Ads work only on mobile Telegram", true); return; }
-  const b = document.getElementById("mineBtn"); b.disabled = true; b.textContent = "Loading ad...";
-  try {
-    const rewarded = await showRewardedAd();
-    if (!rewarded) { toast("Ad not completed", true); return loadMining(); }
-    const r = await api("mining_collect", { ad_token: "m_" + Date.now() });
-    toast(`💎 +${r.reward} TON collected!`);
-    loadMining(); loadDash();
-  } catch (e) { toast(e.message, true); loadMining(); }
-}
 
 // ============================================================
 // WITHDRAW
