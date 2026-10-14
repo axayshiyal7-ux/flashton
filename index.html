@@ -56,6 +56,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulat
 .earn-copy strong{font-size:13px;display:block;margin-bottom:4px}
 .earn-copy span{font-size:11px;color:var(--muted)}
 .earn-cta{background:#252c2c;color:var(--mint);padding:10px 12px;border-radius:12px;font-size:11px;font-weight:700}
+.earn-cta:disabled{opacity:.5;cursor:not-allowed}
 .task{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #20232b}
 .task .earn-icon{width:40px;height:40px;background:#202a37;color:#9dbdff}
 .task-info{flex:1}
@@ -117,7 +118,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulat
 <div class="section-head"><h2>Earn more</h2><button class="link" data-go="tasks" type="button">See all →</button></div>
 <div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>+0.00010 TON</span></div><span class="reward">+0.0001</span></div>
 <div class="task"><div class="earn-icon">↗</div><div class="task-info"><strong>Invite friend</strong><span>+0.001 TON</span></div><span class="reward">+0.001</span></div>
-<div class="notice">
+<div class="notice" id="statusBox" style="display:none">
 Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <span id="adsStatus" class="status-badge status-bad">Ads ?</span>
 <span id="dbStatus" class="status-badge status-bad">DB ?</span>
@@ -129,7 +130,16 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <h1 class="title">Tasks</h1>
 <p class="sub">Small actions, steady rewards.</p>
 <div class="stat"><label>Tasks completed</label><b id="tasksCompleted">0 / 3</b></div>
-<div class="task"><div class="earn-icon">◉</div><div class="task-info"><strong>Daily check-in</strong><span>One per 24h</span></div><button class="earn-cta" id="checkinBtn" type="button">Claim</button></div>
+<div class="task">
+<div class="earn-icon">◉</div>
+<div class="task-info">
+<strong>Daily check-in</strong>
+<span id="checkinTimer">One per 24h · +0.00010 TON</span>
+</div>
+<button class="earn-cta" id="checkinBtn" type="button">Claim</button>
+</div>
+<div class="task"><div class="earn-icon">➤</div><div class="task-info"><strong>Join TON community</strong><span>Stay in the loop</span></div><span class="reward">+0.00050 TON</span></div>
+<div class="task"><div class="earn-icon">↗</div><div class="task-info"><strong>Invite a friend</strong><span>Share your invite link</span></div><span class="reward">+0.001 TON</span></div>
 </section>
 
 <section id="withdraw" class="page">
@@ -146,10 +156,14 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 
 <section id="profile" class="page">
 <h1 class="title">Account</h1>
+<p class="sub">Your rewards journey, at a glance.</p>
 <div class="stat"><label>Network</label><b>TON</b></div>
+<div class="stat"><label>Name</label><b id="profileName" style="font-size:13px">—</b></div>
+<div class="stat"><label>Username</label><b id="profileUsername" style="font-size:13px">—</b></div>
+<div class="stat"><label>User ID</label><b id="profileUserId" style="font-size:11px">—</b></div>
 <div class="stat"><label>Ads watched</label><b id="profileAds">0</b></div>
 <div class="stat"><label>Tasks</label><b id="profileTasks">0</b></div>
-<div class="stat"><label>User ID</label><b id="profileUserId" style="font-size:11px">—</b></div>
+<div class="stat"><label>Member since</label><b id="profileJoined" style="font-size:11px">—</b></div>
 </section>
 
 <section id="admin" class="page">
@@ -158,6 +172,10 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <div class="stat"><label>Ads watched</label><b id="adminTotalAds">—</b></div>
 <div class="stat"><label>Pending withdraw</label><b id="adminPending">—</b></div>
 <div class="stat"><label>Total paid</label><b id="adminTotalPaid">— TON</b></div>
+<div class="section-head"><h2>Pending withdrawals</h2></div>
+<div id="adminWithdrawals" class="admin-empty">Loading...</div>
+<div class="section-head"><h2>Flagged users</h2></div>
+<div id="adminFlagged" class="admin-empty">Loading...</div>
 <div class="withdraw-box">
 <h3>Create task</h3>
 <input class="input" id="newTaskTitle" placeholder="Title">
@@ -165,7 +183,6 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <input class="input" id="newTaskUrl" type="url" placeholder="URL (optional)">
 <button class="wide secondary" id="createTaskBtn" type="button">＋ Publish</button>
 </div>
-<div id="adminWithdrawals" class="admin-empty">Loading...</div>
 </section>
 
 <nav class="nav" id="mainNav">
@@ -182,7 +199,7 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <script>
 // ================= CONFIG =================
 const SUPABASE_URL = 'https://fxehjnyocnlzvaannhyg.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZWhqbnlvY25senZhYW5uaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc2MzIwMDAsImV4cCI6MjA0MzIwODAwMH0.REPLACE_WITH_YOUR_ANON_KEY';
+const SUPABASE_ANON_KEY = 'sb_publishable__6Heu_ZH186dPMJMIE00sA_hwHrtV67';
 const ADSGRAM_BLOCK_ID = 'YOUR_ADSGRAM_BLOCK_ID';
 const ADMIN_TELEGRAM_ID = '8280934931';
 const DAILY_AD_LIMIT = 5;
@@ -192,6 +209,7 @@ let supabaseClient = null;
 let adController = null;
 let currentUserId = null;
 let currentUser = null;
+let timerInterval = null;
 
 const tg = window.Telegram?.WebApp;
 const tgUser = tg?.initDataUnsafe?.user;
@@ -215,12 +233,21 @@ function showToast(text) {
   window.toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
+function getDeviceId() {
+  let id = localStorage.getItem('flash_device_id');
+  if (!id) {
+    id = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    localStorage.setItem('flash_device_id', id);
+  }
+  return id;
+}
+
 // ================= NAV =================
 function go(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page));
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.go === page));
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (page === 'admin' && typeof loadAdmin === 'function') loadAdmin();
+  if (page === 'admin') loadAdmin();
 }
 
 document.addEventListener('click', function(e) {
@@ -239,8 +266,9 @@ function initTelegram() {
     tg.expand();
     currentUserId = tgUser?.id ? String(tgUser.id) : null;
     setStatus('tgStatus', true, 'TG ✓');
-    if (currentUserId === ADMIN_TELEGRAM_ID && $('adminNav')) {
-      $('adminNav').style.display = 'block';
+    if (currentUserId === ADMIN_TELEGRAM_ID) {
+      if ($('adminNav')) $('adminNav').style.display = 'block';
+      if ($('statusBox')) $('statusBox').style.display = 'block';
     }
     return true;
   } catch (e) {
@@ -311,6 +339,7 @@ async function ensureUser() {
   const res = await api('ensure_user', {
     username: tgUser?.username || null,
     first_name: tgUser?.first_name || null,
+    device_id: getDeviceId(),
   });
   return res?.user || null;
 }
@@ -320,21 +349,66 @@ async function getTodayAdCount() {
   return res?.count || 0;
 }
 
+// ================= CHECK-IN TIMER =================
+function startCheckinTimer(lastCheckin) {
+  if (timerInterval) clearInterval(timerInterval);
+  const btn = $('checkinBtn');
+  const label = $('checkinTimer');
+
+  if (!lastCheckin) {
+    if (label) label.textContent = 'Ready! +0.00010 TON';
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  const last = new Date(lastCheckin).getTime();
+  const next = last + 86400000;
+
+  function tick() {
+    const diff = next - Date.now();
+    if (diff <= 0) {
+      clearInterval(timerInterval);
+      if (label) label.textContent = 'Ready! +0.00010 TON';
+      if (btn) btn.disabled = false;
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    if (label) label.textContent = 'Next in ' + h + 'h ' + m + 'm ' + s + 's';
+    if (btn) btn.disabled = true;
+  }
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+// ================= REFRESH UI =================
 async function refreshUI() {
   const user = await ensureUser();
   if (!user) return;
   currentUser = user;
   const bal = Number(user.balance || 0);
+
   if ($('balanceValue')) $('balanceValue').innerHTML = bal.toFixed(5) + ' <small>TON</small>';
   if ($('usdValue')) $('usdValue').textContent = '≈ $' + (bal * 1.6).toFixed(4) + ' USD';
   if ($('withdrawBalance')) $('withdrawBalance').textContent = bal.toFixed(5) + ' TON';
+
+  if ($('profileName')) $('profileName').textContent = user.first_name || '—';
+  if ($('profileUsername')) $('profileUsername').textContent = user.username ? '@' + user.username : '—';
+  if ($('profileUserId')) $('profileUserId').textContent = currentUserId || '—';
   if ($('profileAds')) $('profileAds').textContent = user.ads_watched || 0;
   if ($('profileTasks')) $('profileTasks').textContent = user.tasks_completed || 0;
-  if ($('profileUserId')) $('profileUserId').textContent = currentUserId || '—';
+  if ($('profileJoined')) {
+    const d = user.created_at ? new Date(user.created_at) : null;
+    $('profileJoined').textContent = d ? d.toLocaleDateString() : '—';
+  }
+
   const todayCount = await getTodayAdCount();
   if ($('dailyProgress')) $('dailyProgress').textContent = todayCount + ' of ' + DAILY_AD_LIMIT + ' ads today';
   if ($('dailyProgressBar')) $('dailyProgressBar').style.width = Math.min(100, (todayCount / DAILY_AD_LIMIT) * 100) + '%';
   if ($('tasksCompleted')) $('tasksCompleted').textContent = (user.tasks_completed || 0) + ' / 3';
+
+  startCheckinTimer(user.last_checkin || null);
 }
 
 // ================= WATCH AD =================
@@ -342,21 +416,11 @@ async function watchAd() {
   const btn = $('watchAdBtn');
   if (!btn) return;
 
-  if (!currentUserId) {
-    showToast('Open inside Telegram to earn.');
-    return;
-  }
-
-  if (!adController) {
-    showToast('No ads available right now.');
-    return;
-  }
+  if (!currentUserId) { showToast('Open inside Telegram to earn.'); return; }
+  if (!adController) { showToast('No ads available right now.'); return; }
 
   const today = await getTodayAdCount();
-  if (today >= DAILY_AD_LIMIT) {
-    showToast('Daily limit reached. Come back tomorrow.');
-    return;
-  }
+  if (today >= DAILY_AD_LIMIT) { showToast('Daily limit reached. Come back tomorrow.'); return; }
 
   btn.disabled = true;
   const old = btn.innerHTML;
@@ -387,9 +451,16 @@ async function watchAd() {
 // ================= CHECK-IN =================
 async function dailyCheckin() {
   if (!currentUserId) { showToast('Open in Telegram.'); return; }
+  const btn = $('checkinBtn');
+  if (btn) btn.disabled = true;
   const r = await api('reward', { type: 'checkin' });
-  if (r && r.success) { showToast('+0.00010 TON!'); await refreshUI(); }
-  else showToast((r && r.error) || 'Check-in failed.');
+  if (r && r.success) {
+    showToast('+0.00010 TON earned! ✅');
+    await refreshUI();
+  } else {
+    showToast((r && r.error) || 'Check-in failed.');
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ================= WITHDRAW =================
@@ -406,19 +477,33 @@ async function requestWithdraw() {
 // ================= ADMIN =================
 async function loadAdmin() {
   if (currentUserId !== ADMIN_TELEGRAM_ID) return;
+
   const data = await api('load_admin', { admin_id: currentUserId });
-  if (!data) return;
-  if ($('adminTotalUsers')) $('adminTotalUsers').textContent = data.usersCount;
-  if ($('adminTotalAds')) $('adminTotalAds').textContent = data.totalAds;
-  if ($('adminPending')) $('adminPending').textContent = data.pending.length;
-  if ($('adminTotalPaid')) $('adminTotalPaid').textContent = Number(data.totalPaid).toFixed(5) + ' TON';
-  const w = $('adminWithdrawals');
-  if (w) {
-    w.innerHTML = data.pending.length
-      ? data.pending.map(function(p) {
-          return '<div class="stat"><label>' + p.telegram_id + ' · ' + Number(p.amount).toFixed(5) + ' TON</label><b>' + String(p.wallet_address).slice(0,10) + '...</b></div>';
+  if (data) {
+    if ($('adminTotalUsers')) $('adminTotalUsers').textContent = data.usersCount;
+    if ($('adminTotalAds')) $('adminTotalAds').textContent = data.totalAds;
+    if ($('adminPending')) $('adminPending').textContent = data.pending.length;
+    if ($('adminTotalPaid')) $('adminTotalPaid').textContent = Number(data.totalPaid).toFixed(5) + ' TON';
+    const w = $('adminWithdrawals');
+    if (w) {
+      w.innerHTML = data.pending.length
+        ? data.pending.map(function(p) {
+            return '<div class="stat"><label>' + p.telegram_id + ' · ' + Number(p.amount).toFixed(5) + ' TON</label><b>' + String(p.wallet_address).slice(0,10) + '...</b></div>';
+          }).join('')
+        : 'No pending withdrawals.';
+    }
+  }
+
+  const flagged = await api('load_flagged', { admin_id: currentUserId });
+  const f = $('adminFlagged');
+  if (f && flagged && flagged.users) {
+    f.innerHTML = flagged.users.length
+      ? flagged.users.map(function(u) {
+          return '<div class="stat"><label>' + u.telegram_id + ' · ' + (u.flagged_reason || 'Flagged') + '</label><b>' + String(u.device_id || '').slice(0,12) + '...</b></div>';
         }).join('')
-      : 'No pending withdrawals.';
+      : 'No flagged users.';
+  } else if (f) {
+    f.textContent = 'No flagged users.';
   }
 }
 
