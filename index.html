@@ -156,18 +156,19 @@ Status: <span id="tgStatus" class="status-badge status-bad">TG ?</span>
 <div id="adminWithdrawals" class="admin-empty">Loading...</div>
 </section>
 
-<nav class="nav">
-<button class="active" data-page="home" onclick="go('home')"><span class="ni">⌂</span>Home</button>
-<button data-page="tasks" onclick="go('tasks')"><span class="ni">▤</span>Tasks</button>
-<button data-page="withdraw" onclick="go('withdraw')"><span class="ni">↗</span>Withdraw</button>
-<button data-page="profile" onclick="go('profile')"><span class="ni">◎</span>Profile</button>
-<button id="adminNav" data-page="admin" onclick="go('admin')" style="display:none"><span class="ni">⚙</span>Admin</button>
+<nav class="nav" id="mainNav">
+<button class="active" data-page="home"><span class="ni">⌂</span>Home</button>
+<button data-page="tasks"><span class="ni">▤</span>Tasks</button>
+<button data-page="withdraw"><span class="ni">↗</span>Withdraw</button>
+<button data-page="profile"><span class="ni">◎</span>Profile</button>
+<button id="adminNav" data-page="admin" style="display:none"><span class="ni">⚙</span>Admin</button>
 </nav>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script>
+// ================= CONFIG =================
 const SUPABASE_URL = 'https://fxehjnyocnlzvaannhyg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZWhqbnlvY25senZhYW5uaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc2MzIwMDAsImV4cCI6MjA0MzIwODAwMH0.REPLACE_WITH_YOUR_ANON_KEY';
 const ADSGRAM_BLOCK_ID = 'YOUR_ADSGRAM_BLOCK_ID';
@@ -183,43 +184,122 @@ let currentUser = null;
 const tg = window.Telegram?.WebApp;
 const tgUser = tg?.initDataUnsafe?.user;
 
+// ================= SAFE HELPERS =================
+function $(id) { return document.getElementById(id); }
+
 function setStatus(id, ok, text) {
-  const el = document.getElementById(id);
-  if (el) { el.className = 'status-badge ' + (ok ? 'status-ok' : 'status-bad'); el.textContent = text; }
+  const el = $(id);
+  if (el) {
+    el.className = 'status-badge ' + (ok ? 'status-ok' : 'status-bad');
+    el.textContent = text;
+  }
 }
 
+function showToast(text) {
+  const t = $('toast');
+  if (!t) return;
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ================= NAVIGATION =================
+function go(page) {
+  try {
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (page === 'admin' && typeof loadAdmin === 'function') loadAdmin();
+  } catch (e) {
+    console.warn('Nav error:', e);
+  }
+}
+window.go = go;
+
+// Nav buttons ke liye event listener
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav button');
+  if (btn && btn.dataset.page) {
+    go(btn.dataset.page);
+  }
+});
+
+// ================= TELEGRAM =================
 function initTelegram() {
-  if (!tg) { setStatus('tgStatus', false, 'TG ✗'); return false; }
-  tg.ready(); tg.expand();
-  currentUserId = tgUser?.id ? String(tgUser.id) : null;
-  setStatus('tgStatus', true, 'TG ✓');
-  if (currentUserId === ADMIN_TELEGRAM_ID) {
-    document.getElementById('adminNav').style.display = 'block';
+  try {
+    if (!tg) {
+      setStatus('tgStatus', false, 'TG ✗');
+      console.warn('Telegram WebApp not loaded');
+      return false;
+    }
+    tg.ready();
+    tg.expand();
+    currentUserId = tgUser?.id ? String(tgUser.id) : null;
+    setStatus('tgStatus', true, 'TG ✓');
+    if (currentUserId === ADMIN_TELEGRAM_ID) {
+      const adminNav = $('adminNav');
+      if (adminNav) adminNav.style.display = 'block';
+    }
+    return true;
+  } catch (e) {
+    console.warn('Telegram init error:', e);
+    setStatus('tgStatus', false, 'TG ✗');
+    return false;
   }
-  return true;
 }
 
+// ================= SUPABASE =================
 function initSupabase() {
-  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('REPLACE')) {
-    setStatus('dbStatus', false, 'DB ✗'); return false;
+  try {
+    if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('REPLACE')) {
+      setStatus('dbStatus', false, 'DB ✗ key');
+      return false;
+    }
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    setStatus('dbStatus', true, 'DB ✓');
+    return true;
+  } catch (e) {
+    console.warn('Supabase init error:', e);
+    setStatus('dbStatus', false, 'DB ✗');
+    return false;
   }
-  try { supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); setStatus('dbStatus', true, 'DB ✓'); return true; }
-  catch (e) { setStatus('dbStatus', false, 'DB ✗'); return false; }
 }
 
+// ================= ADSGRAM =================
 function initAdsgram() {
-  if (!window.Adsgram) { setStatus('adsStatus', false, 'Ads ✗'); return false; }
-  if (!ADSGRAM_BLOCK_ID || ADSGRAM_BLOCK_ID.includes('YOUR')) { setStatus('adsStatus', false, 'Ads ✗'); return false; }
-  try { adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }); setStatus('adsStatus', true, 'Ads ✓'); return true; }
-  catch (e) { setStatus('adsStatus', false, 'Ads ✗'); return false; }
+  try {
+    if (!window.Adsgram) {
+      setStatus('adsStatus', false, 'Ads ✗ SDK');
+      return false;
+    }
+    if (!ADSGRAM_BLOCK_ID || ADSGRAM_BLOCK_ID.includes('YOUR')) {
+      setStatus('adsStatus', false, 'Ads ✗ blockId');
+      return false;
+    }
+    adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+    setStatus('adsStatus', true, 'Ads ✓');
+    return true;
+  } catch (e) {
+    console.warn('Adsgram init error:', e);
+    setStatus('adsStatus', false, 'Ads ✗');
+    return false;
+  }
 }
 
+// ================= API =================
 async function api(action, extra = {}) {
-  const { data, error } = await supabase.functions.invoke(API_FUNCTION, {
-    body: { action, telegram_id: currentUserId, ...extra }
-  });
-  if (error) { console.warn('API error:', error); return null; }
-  return data;
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.functions.invoke(API_FUNCTION, {
+      body: { action, telegram_id: currentUserId, ...extra }
+    });
+    if (error) { console.warn('API error:', error); return null; }
+    return data;
+  } catch (e) {
+    console.warn('API exception:', e);
+    return null;
+  }
 }
 
 async function ensureUser() {
@@ -241,112 +321,139 @@ async function refreshUI() {
   if (!user) return;
   currentUser = user;
   const bal = Number(user.balance || 0);
-  document.getElementById('balanceValue').innerHTML = bal.toFixed(5) + ' <small>TON</small>';
-  document.getElementById('usdValue').textContent = '≈ $' + (bal * 1.6).toFixed(4) + ' USD';
-  document.getElementById('withdrawBalance').textContent = bal.toFixed(5) + ' TON';
-  document.getElementById('profileAds').textContent = user.ads_watched || 0;
-  document.getElementById('profileTasks').textContent = user.tasks_completed || 0;
-  document.getElementById('profileUserId').textContent = currentUserId || '—';
+  if ($('balanceValue')) $('balanceValue').innerHTML = bal.toFixed(5) + ' <small>TON</small>';
+  if ($('usdValue')) $('usdValue').textContent = '≈ $' + (bal * 1.6).toFixed(4) + ' USD';
+  if ($('withdrawBalance')) $('withdrawBalance').textContent = bal.toFixed(5) + ' TON';
+  if ($('profileAds')) $('profileAds').textContent = user.ads_watched || 0;
+  if ($('profileTasks')) $('profileTasks').textContent = user.tasks_completed || 0;
+  if ($('profileUserId')) $('profileUserId').textContent = currentUserId || '—';
   const todayCount = await getTodayAdCount();
-  document.getElementById('dailyProgress').textContent = todayCount + ' of ' + DAILY_AD_LIMIT + ' ads today';
-  document.getElementById('dailyProgressBar').style.width = Math.min(100, (todayCount / DAILY_AD_LIMIT) * 100) + '%';
-  document.getElementById('tasksCompleted').textContent = (user.tasks_completed || 0) + ' / 3';
+  if ($('dailyProgress')) $('dailyProgress').textContent = todayCount + ' of ' + DAILY_AD_LIMIT + ' ads today';
+  if ($('dailyProgressBar')) $('dailyProgressBar').style.width = Math.min(100, (todayCount / DAILY_AD_LIMIT) * 100) + '%';
+  if ($('tasksCompleted')) $('tasksCompleted').textContent = (user.tasks_completed || 0) + ' / 3';
 }
 
+// ================= WATCH AD =================
 async function watchAd() {
-  const btn = document.getElementById('watchAdBtn');
-  if (!currentUserId) { showToast('Open inside Telegram.'); return; }
-  if (!adController) { showToast('Ad provider not ready.'); return; }
+  const btn = $('watchAdBtn');
+  if (!btn) return;
+
+  if (!currentUserId) {
+    showToast('Open inside Telegram to earn.');
+    return;
+  }
+
+  if (!adController) {
+    showToast('No ads available right now.');
+    return;
+  }
+
   const today = await getTodayAdCount();
-  if (today >= DAILY_AD_LIMIT) { showToast('Daily limit reached.'); return; }
+  if (today >= DAILY_AD_LIMIT) {
+    showToast('Daily limit reached. Come back tomorrow.');
+    return;
+  }
+
   btn.disabled = true;
   const old = btn.innerHTML;
   btn.innerHTML = '⏳ Loading ad...';
+
   try {
     const result = await adController.show();
+    console.log('Ad result:', result);
+
     if (result && result.done) {
       const r = await api('reward', { type: 'ad' });
-      if (r?.success) { showToast('+0.00025 TON earned! 🎉'); await refreshUI(); }
-      else showToast(r?.error || 'Reward failed.');
+      if (r?.success) {
+        showToast('+0.00025 TON earned! 🎉');
+        await refreshUI();
+      } else {
+        showToast(r?.error || 'Reward failed.');
+      }
     } else {
       showToast('Ad not completed.');
     }
   } catch (e) {
-    console.warn(e);
-    showToast('Ad not available.');
+    console.warn('Ad error:', e);
+    showToast('No ads available right now.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = old;
   }
 }
 
+// ================= CHECK-IN =================
 async function dailyCheckin() {
-  if (!currentUserId) return;
+  if (!currentUserId) { showToast('Open in Telegram.'); return; }
   const r = await api('reward', { type: 'checkin' });
   if (r?.success) { showToast('+0.00010 TON!'); await refreshUI(); }
   else showToast(r?.error || 'Check-in failed.');
 }
+window.dailyCheckin = dailyCheckin;
 
+// ================= WITHDRAW =================
 async function requestWithdraw() {
-  if (!currentUserId) return;
-  const wallet = document.getElementById('payoutWallet').value.trim();
+  if (!currentUserId) { showToast('Open in Telegram.'); return; }
+  const wallet = $('payoutWallet')?.value.trim();
   if (!wallet) { showToast('Enter wallet address.'); return; }
   const r = await api('withdraw', { wallet_address: wallet });
   if (r?.error) { showToast(r.error); return; }
   showToast('Withdrawal requested!');
   await refreshUI();
 }
+window.requestWithdraw = requestWithdraw;
 
+// ================= ADMIN =================
 async function loadAdmin() {
   if (currentUserId !== ADMIN_TELEGRAM_ID) return;
   const data = await api('load_admin', { admin_id: currentUserId });
   if (!data) return;
-  document.getElementById('adminTotalUsers').textContent = data.usersCount;
-  document.getElementById('adminTotalAds').textContent = data.totalAds;
-  document.getElementById('adminPending').textContent = data.pending.length;
-  document.getElementById('adminTotalPaid').textContent = Number(data.totalPaid).toFixed(5) + ' TON';
-  const w = document.getElementById('adminWithdrawals');
-  w.innerHTML = data.pending.length
-    ? data.pending.map(p => `<div class="stat"><label>${p.telegram_id} · ${Number(p.amount).toFixed(5)} TON</label><b>${p.wallet_address.slice(0,10)}...</b></div>`).join('')
-    : 'No pending withdrawals.';
+  if ($('adminTotalUsers')) $('adminTotalUsers').textContent = data.usersCount;
+  if ($('adminTotalAds')) $('adminTotalAds').textContent = data.totalAds;
+  if ($('adminPending')) $('adminPending').textContent = data.pending.length;
+  if ($('adminTotalPaid')) $('adminTotalPaid').textContent = Number(data.totalPaid).toFixed(5) + ' TON';
+  const w = $('adminWithdrawals');
+  if (w) {
+    w.innerHTML = data.pending.length
+      ? data.pending.map(p => `<div class="stat"><label>${p.telegram_id} · ${Number(p.amount).toFixed(5)} TON</label><b>${p.wallet_address.slice(0,10)}...</b></div>`).join('')
+      : 'No pending withdrawals.';
+  }
 }
+window.loadAdmin = loadAdmin;
 
 async function createTask() {
-  const title = document.getElementById('newTaskTitle').value.trim();
-  const reward = parseFloat(document.getElementById('newTaskReward').value);
-  const url = document.getElementById('newTaskUrl').value.trim();
+  const title = $('newTaskTitle')?.value.trim();
+  const reward = parseFloat($('newTaskReward')?.value);
+  const url = $('newTaskUrl')?.value.trim();
   if (!title || !reward) { showToast('Fill title & reward.'); return; }
   await api('create_task', {
     admin_id: currentUserId,
     payload: { title, reward, url }
   });
   showToast('Task created!');
-  document.getElementById('newTaskTitle').value = '';
-  document.getElementById('newTaskReward').value = '';
-  document.getElementById('newTaskUrl').value = '';
+  if ($('newTaskTitle')) $('newTaskTitle').value = '';
+  if ($('newTaskReward')) $('newTaskReward').value = '';
+  if ($('newTaskUrl')) $('newTaskUrl').value = '';
 }
+window.createTask = createTask;
 
-function go(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === page));
-  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === page));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (page === 'admin') loadAdmin();
-}
+// ================= INIT =================
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('App starting...');
 
-function showToast(text) {
-  const t = document.getElementById('toast');
-  t.textContent = text;
-  t.classList.add('show');
-  clearTimeout(window.toastTimer);
-  window.toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-window.addEventListener('DOMContentLoaded', async () => {
   initTelegram();
   initSupabase();
   initAdsgram();
-  document.getElementById('watchAdBtn').addEventListener('click', watchAd);
-  if (currentUserId && supabase) await refreshUI();
+
+  const btn = $('watchAdBtn');
+  if (btn) {
+    btn.addEventListener('click', watchAd);
+    console.log('Ad button listener attached');
+  }
+
+  if (currentUserId && supabase) {
+    refreshUI().catch(e => console.warn('refreshUI error:', e));
+  }
 });
 </script>
 </body>
